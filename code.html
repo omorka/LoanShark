@@ -2,7 +2,7 @@
 <html lang="en" class="h-100">
 
 <head>
-    <title>App Name: A Coding Project by Onyeka Morka</title>
+    <title>Loan Shark: A Coding Project by Onyeka Morka</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,7 +23,7 @@
     <!-- NAV SECTION -->
     <nav class="navbar navbar-expand-md navbar-dark fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/index.html"><img src="img/Icon.svg" class="d-inline-block align-text-top" width="30" height="24">APP NAME</a>
+            <a class="navbar-brand" href="/index.html"><img src="img/Icon.svg" class="d-inline-block align-text-top" width="30" height="24">Loan Shark</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
                 aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -40,7 +40,7 @@
                         <a class="nav-link active" aria-current="page" href="/code.html">The Code</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" target="_blank" href="#">Git Repo</a>
+                        <a class="nav-link" target="_blank" href="https://github.com/omorka/LoanShark">Git Repo</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" target="_blank" href="https://omorka.netlify.app/">About Me</a>
@@ -52,23 +52,177 @@
     <!-- MAIN SECTION -->
     <main class="flex-shrink-0">
         <div class="container py-4 px-5 mt-5">
-            <h2 class="border-1 border-bottom border-dark">The Code for APP NAME</h2>
-            <div class="row row-cols-1 row-cols-md-2">
-                <div class="col-md-8">
+            <h2 class="border-1 border-bottom border-dark">The Code for Loan Shark</h2>
+            <div class="row row-cols-1 row-cols-lg-2">
+                <div class="col-lg-8">
                     <pre class="line-numbers">
                         <code class="language-javascript">
-                            //Call Hello World
-                            function helloWorld()
+                            //global variables to for final display
+                            let finalLoanAmount = 0;
+                            let finalInterest = 0;
+                            let finalCost = 0;
+
+                            //get values from html
+                            function getValues()
                             {
-                                alert("Hello World!");
+                                let loanAmount = document.getElementById("loanAmount").value;
+                                let payments = document.getElementById("payments").value;
+                                let interestRate = document.getElementById("interestRate").value;
+                                
+                                //validation check
+                                if (Number.isInteger(loanAmount) && Number.isInteger(payments) && Number.isInteger(interestRate) &&
+                                loanAmount > 0 && payments > 0 && interestRate > 0)
+                                {
+                                    //get the loan data
+                                    let loanData = loanCalculator(loanAmount, payments, interestRate);
+
+                                    //assign the global values the proper data from the loan calculation
+                                    finalLoanAmount = parseFloat(loanAmount);
+                                    finalInterest = parseFloat(loanData[loanData.length-1].totalInterest);
+                                    finalCost = finalLoanAmount + finalInterest;
+
+                                    //display the data
+                                    displayData(loanData);
+                                }
+                                else
+                                {
+                                    alert("Please enter valid numbers!");
+                                }
                             }
                         </code>
                     </pre>
                 </div>
-                <div class="col-md-4">
-                    <p>The Code is structured in one function.</p>
-                    <h5>Hello World</h5>
-                    <p>Hello World is a function that displays an alert with a message of "Hello World".</p>
+                <div class="col-lg-4">
+                    <h5>GetValues() Method</h5>
+                    <p>The <strong>getValues()</strong> method gets the input from the HTML 
+                    and stores it in javascript values that are then checked to confirm they 
+                    are integers before being passed into the next method. It also assigns the 
+                    values from that method to the global variables <strong>finalLoanAmount</strong>,
+                    <strong>finalInterest</strong> and <strong>finalCost</strong>. It then calls on 
+                    <strong>displayData()</strong> to display the values in a table.</p>
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-lg-2">
+                <div class="col-lg-8">
+                    <pre class="line-numbers">
+                        <code class="language-javascript">
+                            //calculate loan
+                            function loanCalculator(loanAmount, payments, interestRate)
+                            {
+                                let loanData = []; //the array to be passed back
+                                let remainingBalance = loanAmount; //local variable for keeping track of the balance during the loop
+                                let totalInterest = 0; //local varialbe for keeping track of the total interest during the loop
+
+                                //loop from 1 to the amount of payments
+                                for (let i = 1; i <= payments; i++)
+                                {
+                                    //create an object to hold each value
+                                    let returnObj = {};
+
+                                    //calculate the month, monthly payment, principal payment, interest, totalinterest and remaining balance
+                                    returnObj.month = i;
+                                    returnObj.payment = ((loanAmount * (interestRate/1200)) / (1 - 
+                                    (Math.pow((1 + (interestRate/1200)), -payments))));
+                                    returnObj.interestPayment = (remainingBalance * ((interestRate/1200)));
+                                    totalInterest += returnObj.interestPayment;
+                                    returnObj.totalInterest = totalInterest;
+                                    returnObj.principalPayment = (returnObj.payment - returnObj.interestPayment);
+                                    remainingBalance = (remainingBalance - returnObj.principalPayment);
+                                    returnObj.remainingBalance = remainingBalance;
+                                    
+                                    //change all numbers to 2 decimal places to look like currency
+                                    returnObj.payment = returnObj.payment.toFixed(2);
+                                    returnObj.interestPayment = returnObj.interestPayment.toFixed(2);
+                                    returnObj.totalInterest = returnObj.totalInterest.toFixed(2);
+                                    returnObj.principalPayment = returnObj.principalPayment.toFixed(2);
+                                    returnObj.remainingBalance = returnObj.remainingBalance.toFixed(2);
+                                    loanData.push(returnObj); //push object to return array
+                                }
+
+                                return loanData;
+                            }
+                        </code>
+                    </pre>
+                </div>
+                <div class="col-lg-4">
+                    <h5>CalculateLoan() Method</h5>
+                    <p>The <strong>fizzBuzz()</strong> method takes in 3 parameters 
+                    which are the <strong>loanAmount</strong>, <strong>payments</strong>
+                    and <strong>interestRate</strong> from the <strong>getValues()</strong> method 
+                    and iterates from 1 to <strong>payments</strong> and calculates each value
+                    and adds them to a <strong>returnObj</strong> that gets pushed onto a <strong>
+                    loanData</strong> array that gets returned by the method.</p>
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-lg-2">
+                <div class="col-lg-8">
+                    <pre class="line-numbers">
+                        <code class="language-javascript">
+                            //display data
+                            function displayData(loanData)
+                            {
+                                //get the tbody from html document
+                                let tableBody = document.getElementById("loanData");
+
+                                //get the template
+                                let templateRow = document.getElementById("loanTemplate");
+
+                                //clear table rows
+                                tableBody.innerHTML = "";
+
+                                //loop over fbData and increment by the index by 5 after every iteration
+                                for (let i = 0; i < loanData.length; i++)
+                                {
+                                    //import template content
+                                    let tableRow = document.importNode(templateRow.content, true);
+
+                                    //get all tds in the template element
+                                    let rowCols = tableRow.querySelectorAll("td");
+                                    
+                                    //add text to the table data
+                                    rowCols[0].textContent = loanData[i].month;
+                                    rowCols[1].textContent = loanData[i].payment;
+                                    rowCols[2].textContent = loanData[i].principalPayment;
+                                    rowCols[3].textContent = loanData[i].interestPayment;
+                                    rowCols[4].textContent = loanData[i].totalInterest;
+                                    rowCols[5].textContent = loanData[i].remainingBalance;
+
+                                    //add the table data to the table body
+                                    tableBody.appendChild(tableRow);
+                                }
+
+                                //convert global data into strings that look like currency
+                                let loanString = "";
+                                //check if final loan amount has decimals or not so it can be printed properly
+                                if (Number.isInteger(finalLoanAmount))
+                                {
+                                    loanString = finalLoanAmount.toLocaleString("en-US") + ".00";
+                                }
+                                else
+                                {
+                                    loanString = finalLoanAmount.toLocaleString("en-US");
+                                }
+                                let interestString = finalInterest.toLocaleString("en-US");
+                                let costString = finalCost.toLocaleString("en-US");
+
+                                //post the strings to the proper elements
+                                document.getElementById("monthlyPayments").innerHTML = "$" + loanData[loanData.length-1].payment;
+                                document.getElementById("totalPrincipal").innerHTML = "$" + loanString;
+                                document.getElementById("totalInterest").innerHTML = "$" + interestString;
+                                document.getElementById("totalCost").innerHTML = "$" + costString;
+                            }
+                        </code>
+                    </pre>
+                </div>
+                <div class="col-lg-4">
+                    <h5>DisplayData() Method</h5>
+                    <p>The <strong>displayData()</strong> method takes in the array 
+                    from the completion of the<strong>calculateLoan</strong> method 
+                    and gets the table body and the template from the document and 
+                    adds the <strong>loanData</strong> array to the table by using a FOR Loop
+                    that adds the values to a copy of the template and pushes that 
+                    template to the table. It also posts the final values to the proper
+                    HTML elements for the user to see.</p>
                 </div>
             </div>
         </div>
