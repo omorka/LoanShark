@@ -10,8 +10,13 @@ function getValues()
     let payments = document.getElementById("payments").value;
     let interestRate = document.getElementById("interestRate").value;
 
+    //turn values into integers
+    loanAmount = parseInt(loanAmount);
+    payments = parseInt(payments);
+    interestRate = parseInt(interestRate);
+
     //validation check
-    if (Number.isInteger(loanAmount) && Number.isInteger(payments) && Number.isInteger(interestRate) &&
+    if (Number.isInteger && Number.isInteger(payments) && Number.isInteger(interestRate) &&
     loanAmount > 0 && payments > 0 && interestRate > 0)
     {
         //get the loan data
